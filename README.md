@@ -14,7 +14,7 @@ Prerequisites:
 * git
 * python 2.7.x
 * virtualenv
-* mysql
+* mysql 5.6
 * [cairo](https://www.cairographics.org/download/) (SVG utility)
 
 #### Optional extras:
