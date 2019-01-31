@@ -8,7 +8,7 @@ from oauth2_provider.models import get_application_model, get_grant_model, get_a
 
 import badgrlog
 from badgeuser.models import CachedEmailAddress, ProxyEmailConfirmation
-from mainsite.models import BadgrApp, EmailBlacklist, ApplicationInfo, AccessTokenProxy, LegacyTokenProxy
+from mainsite.models import BadgrApp, ApplicationInfo, AccessTokenProxy, LegacyTokenProxy
 
 badgrlogger = badgrlog.BadgrLogger()
 
@@ -57,13 +57,6 @@ class BadgrAppAdmin(ModelAdmin):
     )
     list_display = ('name', 'cors',)
 badgr_admin.register(BadgrApp, BadgrAppAdmin)
-
-
-class EmailBlacklistAdmin(ModelAdmin):
-    readonly_fields = ('email',)
-    list_display = ('email',)
-    search_fields = ('email',)
-badgr_admin.register(EmailBlacklist, EmailBlacklistAdmin)
 
 # 3rd party apps
 
