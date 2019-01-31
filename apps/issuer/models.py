@@ -28,6 +28,7 @@ from django.utils import timezone
 
 from entity.models import BaseVersionedEntity
 from issuer.managers import BadgeInstanceManager, IssuerManager, BadgeClassManager, BadgeInstanceEvidenceManager
+from mainsite import blacklist
 from mainsite.managers import SlugOrJsonIdCacheModelManager
 from mainsite.mixins import ResizeUploadedImage, ScrubUploadedSvgImage
 from mainsite.models import (BadgrApp, EmailBlacklist)
@@ -768,6 +769,19 @@ class BadgeInstance(BaseAuditedModel,
 
     def save(self, *args, **kwargs):
         if self.pk is None:
+            response = blacklist.api_query_email(self.recipient_identifier)
+
+            is_in_blacklist = None
+            if response.status_code == 200:
+                query = response.json()
+                if len(query) > 0:
+                    is_in_blacklist = True
+                else:
+                    is_in_blacklist = False
+
+            if is_in_blacklist == True:
+                return
+
             self.salt = uuid.uuid4().hex
             self.created_at = datetime.datetime.now()
 

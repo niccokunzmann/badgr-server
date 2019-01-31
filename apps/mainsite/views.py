@@ -20,7 +20,8 @@ from rest_framework.views import APIView
 
 from issuer.tasks import rebake_all_assertions, update_issuedon_all_assertions
 from mainsite.admin_actions import clear_cache
-from mainsite.models import EmailBlacklist, BadgrApp
+from mainsite import blacklist
+from mainsite.models import BadgrApp
 from mainsite.serializers import VerifiedAuthTokenSerializer
 from pathway.tasks import resave_all_elements
 
@@ -64,14 +65,10 @@ def email_unsubscribe(request, *args, **kwargs):
     except TypeError:
         return HttpResponse('Invalid unsubscribe link.')
 
-    if not EmailBlacklist.verify_email_signature(**kwargs):
+    if not blacklist.verify_email_signature(**kwargs):
         return HttpResponse('Invalid unsubscribe link.')
 
-    blacklist_instance = EmailBlacklist(email=email)
-    try:
-        blacklist_instance.save()
-    except IntegrityError:
-        pass
+    blacklist.api_submit_email(email)
 
     return HttpResponse("You will no longer receive email notifications for \
                         earned badges from this domain.")

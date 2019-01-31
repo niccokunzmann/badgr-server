@@ -15,8 +15,9 @@ from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 from badgeuser.authcode import authcode_for_accesstoken
 from badgeuser.models import CachedEmailAddress, BadgrAccessToken
 from badgrsocialauth.utils import set_url_query_params, get_session_badgr_app, set_session_badgr_app
-from mainsite.models import BadgrApp, EmailBlacklist
+from mainsite.models import BadgrApp
 from mainsite.utils import OriginSetting
+from mainsite import blacklist
 
 
 class BadgrAccountAdapter(DefaultAccountAdapter):
@@ -24,7 +25,7 @@ class BadgrAccountAdapter(DefaultAccountAdapter):
     def send_mail(self, template_prefix, email, context):
         context['STATIC_URL'] = getattr(settings, 'STATIC_URL')
         context['HTTP_ORIGIN'] = getattr(settings, 'HTTP_ORIGIN')
-        context['unsubscribe_url'] = getattr(settings, 'HTTP_ORIGIN') + EmailBlacklist.generate_email_signature(email)
+        context['unsubscribe_url'] = getattr(settings, 'HTTP_ORIGIN') + blacklist.generate_unsubscribe_path(email)
 
         msg = self.render_mail(template_prefix, email, context)
         msg.send()
