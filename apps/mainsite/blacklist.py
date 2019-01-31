@@ -34,6 +34,20 @@ def api_query_email(email):
         return response
 
 
+def api_query_is_in_blacklist(email):
+    response = api_query_email(email)
+
+    is_in_blacklist = None
+    if response.status_code == 200:
+        query = response.json()
+        if len(query) > 0:
+            is_in_blacklist = True
+        else:
+            is_in_blacklist = False
+
+    return is_in_blacklist
+
+
 def generate_email_signature(email):
     secret_key = settings.UNSUBSCRIBE_SECRET_KEY
 

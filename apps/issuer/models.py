@@ -31,7 +31,8 @@ from issuer.managers import BadgeInstanceManager, IssuerManager, BadgeClassManag
 from mainsite import blacklist
 from mainsite.managers import SlugOrJsonIdCacheModelManager
 from mainsite.mixins import ResizeUploadedImage, ScrubUploadedSvgImage
-from mainsite.models import (BadgrApp, EmailBlacklist)
+from mainsite.models import BadgrApp
+from mainsite import blacklist
 from mainsite.utils import OriginSetting, generate_entity_uri
 from .utils import generate_sha256_hashstring, CURRENT_OBI_VERSION, get_obi_context, add_obi_version_ifneeded, \
     UNVERSIONED_BAKED_VERSION
@@ -769,17 +770,11 @@ class BadgeInstance(BaseAuditedModel,
 
     def save(self, *args, **kwargs):
         if self.pk is None:
-            response = blacklist.api_query_email(self.recipient_identifier)
-
-            is_in_blacklist = None
-            if response.status_code == 200:
-                query = response.json()
-                if len(query) > 0:
-                    is_in_blacklist = True
-                else:
-                    is_in_blacklist = False
+            is_in_blacklist = \
+                blacklist.api_query_is_in_blacklist(self.recipient_identifier)
 
             if is_in_blacklist == True:
+                # TODO: Report assertion non-creation somewhere.
                 return
 
             self.salt = uuid.uuid4().hex
@@ -891,14 +886,12 @@ class BadgeInstance(BaseAuditedModel,
         if self.recipient_type != BadgeInstance.RECIPIENT_TYPE_EMAIL:
             return
 
-        try:
-            EmailBlacklist.objects.get(email=self.recipient_identifier)
-        except EmailBlacklist.DoesNotExist:
-            # Allow sending, as this email is not blacklisted.
-            pass
-        else:
-            return
+        is_in_blacklist = \
+            blacklist.api_query_is_in_blacklist(self.recipient_identifier)
+
+        if is_in_blacklist == True:
             # TODO: Report email non-delivery somewhere.
+            return
 
         if badgr_app is None:
             badgr_app = BadgrApp.objects.get_current(None)
@@ -922,7 +915,7 @@ class BadgeInstance(BaseAuditedModel,
                 'badge_instance_url': self.public_url,
                 'image_url': self.public_url + '/image',
                 'download_url': self.public_url + "?action=download",
-                'unsubscribe_url': getattr(settings, 'HTTP_ORIGIN') + EmailBlacklist.generate_email_signature(
+                'unsubscribe_url': getattr(settings, 'HTTP_ORIGIN') + blacklist.generate_unsubscribe_path(
                     self.recipient_identifier),
                 'site_name': badgr_app.name,
                 'site_url': badgr_app.signup_redirect,
