@@ -8,16 +8,27 @@ import requests
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
+blacklist_api_key = getattr(settings, 'BADGR_BLACKLIST_API_KEY')
+blacklist_query_endpoint = getattr(settings, 'BADGR_BLACKLIST_QUERY_ENDPOINT')
+
 
 def api_submit_email(email):
-    return {"status_code": 201}
+    if blacklist_api_key and blacklist_query_endpoint:
+        email_encoded, email_hash, expiration_timestamp, timestamp_hash = \
+            generate_email_signature(email)
+
+        request_body = '{ "id": "%s" }' % email_hash
+        request_query = "{endpoint}".format(endpoint=blacklist_query_endpoint)
+        response = requests.post(request_query, request_body, headers={
+            "Authorization": "BEARER {api_key}".format(
+                api_key=blacklist_api_key
+            ),
+        })
+
+        return response
 
 
 def api_query_email(email):
-    blacklist_api_key = getattr(settings, 'BADGR_BLACKLIST_API_KEY')
-    blacklist_query_endpoint = \
-        getattr(settings, 'BADGR_BLACKLIST_QUERY_ENDPOINT')
-
     if blacklist_api_key and blacklist_query_endpoint:
         email_encoded, email_hash, expiration_timestamp, timestamp_hash = \
             generate_email_signature(email)
