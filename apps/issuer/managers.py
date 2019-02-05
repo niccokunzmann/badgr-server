@@ -209,6 +209,8 @@ class BadgeInstanceManager(BaseOpenBadgeObjectManager):
         badgeclass = kwargs.pop('badgeclass', None)
         issuer = kwargs.pop('issuer', badgeclass.issuer)
 
+        # TODO: Synchronously check blacklist
+
         # self.model would be a BadgeInstance
         new_instance = self.model(
             recipient_identifier=recipient_identifier,
