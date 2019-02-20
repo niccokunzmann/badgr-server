@@ -7,7 +7,7 @@ class BlacklistEarnerNotNotifiedEvent(BaseBadgrEvent):
 
     def to_representation(self):
         return {
-            'recipient_identifier': self.recipient_identifier,
+            'recipient_identifier': self.badge_instance.recipient_identifier,
             'badge_instance': self.badge_instance.json,
         }
 
@@ -18,6 +18,6 @@ class BlacklistAssertionNotCreatedEvent(BaseBadgrEvent):
 
     def to_representation(self):
         return {
-            'recipient_identifier': self.recipient_identifier,
+            'recipient_identifier': self.badge_instance.recipient_identifier,
             'badge_instance': self.badge_instance.json,
         }
