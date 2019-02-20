@@ -21,3 +21,33 @@ class BlacklistAssertionNotCreatedEvent(BaseBadgrEvent):
             'recipient_identifier': self.badge_instance.recipient_identifier,
             'badge_instance': self.badge_instance.json,
         }
+
+
+class BlacklistUnsubscribeInvalidLinkEvent(BaseBadgrEvent):
+    def __init__(self, email):
+        self.email = email
+
+    def to_representation(self):
+        return {
+            'email': self.email
+        }
+
+
+class BlacklistUnsubscribeRequestSuccessEvent(BaseBadgrEvent):
+    def __init__(self, email):
+        self.email = email
+
+    def to_representation(self):
+        return {
+            'email': self.email
+        }
+
+
+class BlacklistUnsubscribeRequestFailedEvent(BaseBadgrEvent):
+    def __init__(self, email):
+        self.email = email
+
+    def to_representation(self):
+        return {
+            'email': self.email
+        }

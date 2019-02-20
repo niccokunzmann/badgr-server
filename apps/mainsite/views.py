@@ -26,6 +26,10 @@ from mainsite.models import BadgrApp
 from mainsite.serializers import VerifiedAuthTokenSerializer
 from pathway.tasks import resave_all_elements
 from badgrsocialauth.utils import get_session_badgr_app
+import badgrlog
+
+
+logger = badgrlog.BadgrLogger()
 
 
 ##
@@ -75,18 +79,23 @@ def email_unsubscribe(request, *args, **kwargs):
     try:
         email = base64.b64decode(kwargs['email_encoded'])
     except TypeError:
+        logger.event(badgrlog.BlacklistUnsubscribeInvalidLinkEvent(
+            kwargs['email_encoded']))
         return email_unsubscribe_error(request, 'Invalid unsubscribe link.')
 
     if not blacklist.verify_email_signature(**kwargs):
+        logger.event(badgrlog.BlacklistUnsubscribeInvalidLinkEvent(email))
         return email_unsubscribe_error(request, 'Invalid unsubscribe link.')
 
     response = blacklist.api_submit_email(email)
 
     if response and response.status_code == 201:
+        logger.event(badgrlog.BlacklistUnsubscribeRequestSuccessEvent(email))
         return email_unsubscribe_error(
             request, "You will no longer receive email notifications for "
             + "earned badges from this domain.")
 
+    logger.event(badgrlog.BlacklistUnsubscribeRequestFailedEvent(email))
     return email_unsubscribe_error(request, "Unsubscribe request failed.")
 
 
