@@ -26,9 +26,9 @@ from jsonfield import JSONField
 from openbadges_bakery import bake
 from django.utils import timezone
 
+import badgrlog
 from entity.models import BaseVersionedEntity
 from issuer.managers import BadgeInstanceManager, IssuerManager, BadgeClassManager, BadgeInstanceEvidenceManager
-from mainsite import blacklist
 from mainsite.managers import SlugOrJsonIdCacheModelManager
 from mainsite.mixins import ResizeUploadedImage, ScrubUploadedSvgImage
 from mainsite.models import BadgrApp
@@ -38,6 +38,8 @@ from .utils import generate_sha256_hashstring, CURRENT_OBI_VERSION, get_obi_cont
     UNVERSIONED_BAKED_VERSION
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
+logger = badgrlog.BadgrLogger()
 
 
 class BaseAuditedModel(cachemodel.CacheModel):
@@ -774,7 +776,8 @@ class BadgeInstance(BaseAuditedModel,
                 blacklist.api_query_is_in_blacklist(self.recipient_identifier)
 
             if is_in_blacklist == True:
-                # TODO: Report assertion non-creation somewhere.
+                badge_instance = self
+                logger.event(badgrlog.BlacklistAssertionNotCreatedEvent(badge_instance))
                 return
 
             self.salt = uuid.uuid4().hex
@@ -890,7 +893,8 @@ class BadgeInstance(BaseAuditedModel,
             blacklist.api_query_is_in_blacklist(self.recipient_identifier)
 
         if is_in_blacklist == True:
-            # TODO: Report email non-delivery somewhere.
+            badge_instance = self
+            logger.event(badgrlog.BlacklistEarnerNotNotifiedEvent(badge_instance))
             return
 
         if badgr_app is None:
