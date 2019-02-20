@@ -26,6 +26,8 @@ def api_submit_email(email):
         })
 
         return response
+    else:
+        return None
 
 
 def api_query_email(email):
@@ -43,13 +45,15 @@ def api_query_email(email):
         })
 
         return response
+    else:
+        return None
 
 
 def api_query_is_in_blacklist(email):
     response = api_query_email(email)
 
     is_in_blacklist = None
-    if response.status_code == 200:
+    if response and response.status_code == 200:
         query = response.json()
         if len(query) > 0:
             is_in_blacklist = True

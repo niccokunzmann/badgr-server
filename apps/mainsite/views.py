@@ -68,10 +68,11 @@ def email_unsubscribe(request, *args, **kwargs):
     if not blacklist.verify_email_signature(**kwargs):
         return HttpResponse('Invalid unsubscribe link.')
 
-    blacklist.api_submit_email(email)
+    response = blacklist.api_submit_email(email)
 
-    return HttpResponse("You will no longer receive email notifications for \
-                        earned badges from this domain.")
+    if response and response.status_code == 201:
+        return HttpResponse("You will no longer receive email notifications \
+                            for earned badges from this domain.")
 
 
 class AppleAppSiteAssociation(APIView):
