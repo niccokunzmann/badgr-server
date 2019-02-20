@@ -6,7 +6,8 @@ from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse_lazy
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseServerError, HttpResponseNotFound
+from django.http import (HttpResponse, HttpResponseServerError,
+                         HttpResponseNotFound, HttpResponseRedirect)
 from django.shortcuts import redirect
 from django.template import loader, TemplateDoesNotExist, Context
 from django.utils.decorators import method_decorator
@@ -24,6 +25,8 @@ from mainsite import blacklist
 from mainsite.models import BadgrApp
 from mainsite.serializers import VerifiedAuthTokenSerializer
 from pathway.tasks import resave_all_elements
+from badgrsocialauth.utils import get_session_badgr_app
+
 
 ##
 #
@@ -56,23 +59,35 @@ def info_view(request):
     return redirect(getattr(settings, 'LOGIN_REDIRECT_URL'))
 
 
+def email_unsubscribe_error(request, message):
+    badgr_app = get_session_badgr_app(request)
+    redirect_url = "{url}?authError={message}".format(
+        url=badgr_app.ui_login_redirect,
+        message=message)
+    return HttpResponseRedirect(redirect_to=redirect_url)
+
+
 def email_unsubscribe(request, *args, **kwargs):
     if time.time() > int(kwargs['expiration']):
-        return HttpResponse('Your unsubscription link has expired.')
+        return email_unsubscribe_error(
+            request, 'Your unsubscription link has expired.')
 
     try:
         email = base64.b64decode(kwargs['email_encoded'])
     except TypeError:
-        return HttpResponse('Invalid unsubscribe link.')
+        return email_unsubscribe_error(request, 'Invalid unsubscribe link.')
 
     if not blacklist.verify_email_signature(**kwargs):
-        return HttpResponse('Invalid unsubscribe link.')
+        return email_unsubscribe_error(request, 'Invalid unsubscribe link.')
 
     response = blacklist.api_submit_email(email)
 
     if response and response.status_code == 201:
-        return HttpResponse("You will no longer receive email notifications \
-                            for earned badges from this domain.")
+        return email_unsubscribe_error(
+            request, "You will no longer receive email notifications for "
+            + "earned badges from this domain.")
+
+    return email_unsubscribe_error(request, "Unsubscribe request failed.")
 
 
 class AppleAppSiteAssociation(APIView):
