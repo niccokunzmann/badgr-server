@@ -465,6 +465,3 @@ PAGINATION_SECRET_KEY = Fernet.generate_key()
 AUTHCODE_SECRET_KEY = Fernet.generate_key()
 
 AUTHCODE_EXPIRES_SECONDS = 600  # needs to be long enough to fetch information from socialauth providers
-
-BADGR_BLACKLIST_API_KEY = "VALIDAUTHTOKEN"
-BADGR_BLACKLIST_QUERY_ENDPOINT = "https://l4jgodpnb1.execute-api.us-east-1.amazonaws.com/dev/blacklist"
