@@ -8,8 +8,8 @@ import requests
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-blacklist_api_key = getattr(settings, 'BADGR_BLACKLIST_API_KEY')
-blacklist_query_endpoint = getattr(settings, 'BADGR_BLACKLIST_QUERY_ENDPOINT')
+blacklist_api_key = getattr(settings, 'BADGR_BLACKLIST_API_KEY', None)
+blacklist_query_endpoint = getattr(settings, 'BADGR_BLACKLIST_QUERY_ENDPOINT', None)
 
 
 def api_submit_email(email):
