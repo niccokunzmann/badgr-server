@@ -76,6 +76,10 @@ class OriginSettingsObject(object):
     def HTTP(self):
         return getattr(settings, 'HTTP_ORIGIN', OriginSettingsObject.DefaultOrigin)
 
+    @property
+    def BADGEBOOK_HTTP(self):
+        return getattr(settings, 'BADGEBOOK_HTTP_ORIGIN', OriginSettingsObject.HTTP)
+
 OriginSetting = OriginSettingsObject()
 
 """
