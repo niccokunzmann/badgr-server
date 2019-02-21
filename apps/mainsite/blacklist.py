@@ -4,6 +4,7 @@ from hashlib import sha1
 import hmac
 
 import requests
+from requests.exceptions import ConnectionError
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -19,11 +20,15 @@ def api_submit_email(email):
 
         request_body = '{ "id": "%s" }' % email_hash
         request_query = "{endpoint}".format(endpoint=blacklist_query_endpoint)
-        response = requests.post(request_query, request_body, headers={
-            "Authorization": "BEARER {api_key}".format(
-                api_key=blacklist_api_key
-            ),
-        })
+
+        try:
+            response = requests.post(request_query, request_body, headers={
+                "Authorization": "BEARER {api_key}".format(
+                    api_key=blacklist_api_key
+                ),
+            })
+        except ConnectionError:
+            return None
 
         return response
     else:
@@ -38,11 +43,15 @@ def api_query_email(email):
         request_query = "{endpoint}?id={email_hash}".format(
             endpoint=blacklist_query_endpoint,
             email_hash=email_hash)
-        response = requests.get(request_query, headers={
-            "Authorization": "BEARER {api_key}".format(
-                api_key=blacklist_api_key
-            ),
-        })
+
+        try:
+            response = requests.get(request_query, headers={
+                "Authorization": "BEARER {api_key}".format(
+                    api_key=blacklist_api_key
+                ),
+            })
+        except ConnectionError:
+            return None
 
         return response
     else:
