@@ -19,7 +19,7 @@ RUN mkdir /badgr && \
 WORKDIR /badgr
 
 ADD requirements.txt .
-RUN pip install --user -r requirements.txt
+RUN pip install -r requirements.txt
 ENV PATH="$PATH:/badgr/.local/bin"
 
 ADD . .

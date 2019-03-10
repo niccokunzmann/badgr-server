@@ -80,8 +80,9 @@ services:
         - "4000:4000"
         networks:
         - frontend
+        environment:
+        - "DOMAIN=localhost:8000" # like one of badgr.environment.ALLOWED_HOSTS
 networks:
     frontend:
     backend:
-  
 
