@@ -1,0 +1,87 @@
+version: '2'
+services:
+    badgr:
+        image: badgr
+        build: .
+        command: migrate runserver
+        links:
+        - "postgresql:postgresql"
+        - "ui:ui"
+        ports:
+        - "8000:8000"
+        networks:
+        - backend
+        - frontend
+        depends_on:
+        - postgresql
+        - ui
+        environment:
+## uncomment the following lines to configure the service
+#        - "DEBUG=true"
+#        - "TEMPLATE_DEBUG=true"
+#        - "DEBUG_ERRORS=true"
+#        - "DEBUG_STATIC=true"
+#        - "DEBUG_MEDIA=true"
+#        - "TIME_ZONE=America/Los_Angeles"
+#        - "LANGUAGE_CODE=en-us"
+        - "DATABASES.default.ENGINE=django.db.backends.postgresql"
+        - "DATABASES.default.NAME=badgr" # same as in postgresql.environment.DB_NAME
+        - "DATABASES.default.USER=badgr" # same as in postgresql.environment.DB_USER
+        - "DATABASES.default.PASSWORD=password" # same as in postgresql.environment.DB_PASS
+        - "DATABASES.default.HOST=postgresql"
+#        - "DATABASES.default.PORT="
+#        - "CACHES.default.BACKEND=django.core.cache.backends.locmem.LocMemCache"
+#        - "CACHES.default.LOCATION="
+#        - "CACHES.default.TIMEOUT=300"
+#        - "CACHES.default.VERSION=1"
+## celery
+#        - "BROKER_URL=amqp://localhost:5672/"
+#        - "CELERY_RESULT_BACKEND=djcelery.backends.cache:CacheBackend"
+#        - "CELERY_TASK_SERIALIZER=json"
+#        - "CELERY_RESULTS_SERIALIZER=json"
+#        - "CELERY_ACCEPT_CONTENT=json"
+## See README
+#        - "CELERY_ALWAYS_EAGER=true"
+        - "HTTP_ORIGIN=http://localhost:8000"
+## Optionally restrict issuer creation to accounts that have the 'issuer.add_issuer' permission
+## See README
+#        - "BADGR_APPROVED_ISSUERS_ONLY=true"
+## If you have an informational front page outside the Django site that can link back to '/login', specify it here 
+#        - "ROOT_INFO_REDIRECT=/login"
+#        - "LOGS_DIR="
+#        - "EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend"
+#        - "DEFAULT_FROM_EMAIL="
+## list of hosts seperated by spaces
+        - "ALLOWED_HOSTS=localhost:8000"
+## additional options as defined in the README
+#        - "HELP_EMAIL="
+#        - "GOOGLE_ANALYTICS_ID="
+#        - "PINGDOM_MONITORING_ID="
+#        - "OPEN_FOR_SIGNUP="
+#        - "PAGINATION_SECRET_KEY="
+#        - "AUTHCODE_SECRET_KEY="
+    postgresql:
+        restart: always
+        image: sameersbn/postgresql:latest
+## uncomment this to persist the data at different locations
+#        volumes:
+#        - "PATH/TO/VOLUME:/var/lib/postgresql:Z"
+#        - "PATH/TO/VOLUME:/var/log/postgresql:Z"
+        networks:
+        - backend
+        environment:
+        - DB_USER=badgr
+        - DB_PASS=password
+        - DB_NAME=gitlabhq_production
+        - DB_EXTENSION=pg_trgm
+    ui:
+        image: badgr-ui
+        ports:
+        - "4000:4000"
+        networks:
+        - frontend
+networks:
+    frontend:
+    backend:
+  
+
