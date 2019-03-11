@@ -22,7 +22,8 @@ ADD requirements.txt .
 RUN pip install -r requirements.txt
 ENV PATH="$PATH:/badgr/.local/bin"
 
-CMD ./manage.py migrate && ./manage.py runserver
+ENTRYPOINT ["docker/entrypoint.sh"]
+CMD ["migrate", "runserver"]
 ADD . .
 
 #RUN chown -R badgr /badgr

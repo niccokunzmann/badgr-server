@@ -3,7 +3,7 @@ services:
     badgr:
         image: badgr
         build: .
-#        command: ./manage.py migrate && ./manage.py runserver
+#        command: migrate runserver
         links:
         - "mysql:mysql"
         - "ui:ui"
@@ -24,16 +24,18 @@ services:
 #        - "DEBUG_MEDIA=true"
 #        - "TIME_ZONE=America/Los_Angeles"
 #        - "LANGUAGE_CODE=en-us"
-        - "DATABASES.default.ENGINE=django.db.backends.mysql"
-        - "DATABASES.default.NAME=badgr"
-        - "DATABASES.default.USER=root"
-        - "DATABASES.default.PASSWORD=password" # same as in mysql.environment
-        - "DATABASES.default.HOST=mysql"
-#        - "DATABASES.default.PORT="
-#        - "CACHES.default.BACKEND=django.core.cache.backends.locmem.LocMemCache"
-#        - "CACHES.default.LOCATION="
-#        - "CACHES.default.TIMEOUT=300"
-#        - "CACHES.default.VERSION=1"
+        - "DATABASES_default_ENGINE=django.db.backends.mysql"
+        - "DATABASES_default_NAME=badgr"
+        - "DATABASES_default_USER=root"
+        - "DATABASES_default_PASSWORD=password" # same as in mysql.environment
+        - "DATABASES_default_HOST=mysql"
+        - "DATABASES_default_PORT=3306"
+## create the database when the server starts if it is not there, yet.
+        - "CREATE_DB_IF_NOT_EXISTS=yes"
+#        - "CACHES_default_BACKEND=django.core.cache.backends.locmem.LocMemCache"
+#        - "CACHES_default_LOCATION="
+#        - "CACHES_default_TIMEOUT=300"
+#        - "CACHES_default_VERSION=1"
 ## celery
 #        - "BROKER_URL=amqp://localhost:5672/"
 #        - "CELERY_RESULT_BACKEND=djcelery.backends.cache:CacheBackend"
@@ -64,6 +66,8 @@ services:
         image: mariadb
         environment:
         - "MYSQL_ROOT_PASSWORD=password"
+        ports:
+        - "3306:3306"
         networks:
         - backend
 #    volumes:
