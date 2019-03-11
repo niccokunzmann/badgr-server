@@ -3,9 +3,9 @@ services:
     badgr:
         image: badgr
         build: .
-        command: migrate runserver
+#        command: ./manage.py migrate && ./manage.py runserver
         links:
-        - "postgresql:postgresql"
+        - "mysql:mysql"
         - "ui:ui"
         ports:
         - "8000:8000"
@@ -13,7 +13,7 @@ services:
         - backend
         - frontend
         depends_on:
-        - postgresql
+        - mysql
         - ui
         environment:
 ## uncomment the following lines to configure the service
@@ -24,11 +24,11 @@ services:
 #        - "DEBUG_MEDIA=true"
 #        - "TIME_ZONE=America/Los_Angeles"
 #        - "LANGUAGE_CODE=en-us"
-        - "DATABASES.default.ENGINE=django.db.backends.postgresql"
-        - "DATABASES.default.NAME=badgr" # same as in postgresql.environment.DB_NAME
-        - "DATABASES.default.USER=badgr" # same as in postgresql.environment.DB_USER
-        - "DATABASES.default.PASSWORD=password" # same as in postgresql.environment.DB_PASS
-        - "DATABASES.default.HOST=postgresql"
+        - "DATABASES.default.ENGINE=django.db.backends.mysql"
+        - "DATABASES.default.NAME=badgr"
+        - "DATABASES.default.USER=root"
+        - "DATABASES.default.PASSWORD=password" # same as in mysql.environment
+        - "DATABASES.default.HOST=mysql"
 #        - "DATABASES.default.PORT="
 #        - "CACHES.default.BACKEND=django.core.cache.backends.locmem.LocMemCache"
 #        - "CACHES.default.LOCATION="
@@ -60,20 +60,28 @@ services:
 #        - "OPEN_FOR_SIGNUP="
 #        - "PAGINATION_SECRET_KEY="
 #        - "AUTHCODE_SECRET_KEY="
-    postgresql:
-        restart: always
-        image: sameersbn/postgresql:latest
+    mysql:
+        image: mariadb
+        environment:
+        - "MYSQL_ROOT_PASSWORD=password"
+        networks:
+        - backend
+#    volumes:
+#    - "PATH/TO/VOLUME:/var/lib/mysql"
+#    postgresql:
+#        restart: always
+#        image: sameersbn/postgresql:latest
 ## uncomment this to persist the data at different locations
 #        volumes:
 #        - "PATH/TO/VOLUME:/var/lib/postgresql:Z"
 #        - "PATH/TO/VOLUME:/var/log/postgresql:Z"
-        networks:
-        - backend
-        environment:
-        - DB_USER=badgr
-        - DB_PASS=password
-        - DB_NAME=gitlabhq_production
-        - DB_EXTENSION=pg_trgm
+#        networks:
+#        - backend
+#        environment:
+#        - DB_USER=badgr
+#        - DB_PASS=password
+#        - DB_NAME=gitlabhq_production
+#        - DB_EXTENSION=pg_trgm
     ui:
         image: badgr-ui
         ports:

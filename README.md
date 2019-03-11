@@ -143,6 +143,12 @@ Create the container:
 ```shell
 docker build -t badgr .
 ```
+
+Debug image with sh:
+
+```shell
+docker build -t badgr . && docker run -i --rm --entrypoint /bin/sh badgr
+```
   
 ## Docker-Compose
 
@@ -151,6 +157,6 @@ Run the containers.
 ```shell
 docker network create code_backend
 docker network create code_frontend
-docker-compose create --force-recreate && docker-compose start
+_docker-compose create && docker-compose start
 ```
 
