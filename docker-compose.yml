@@ -3,7 +3,7 @@ services:
     badgr:
         image: badgr
         build: .
-#        command: migrate runserver
+        command: ["migrate", "runserver 0.0.0.0:8000"]
         links:
         - "mysql:mysql"
         - "ui:ui"
@@ -17,7 +17,7 @@ services:
         - ui
         environment:
 ## uncomment the following lines to configure the service
-#        - "DEBUG=true"
+        - "DEBUG=true"
 #        - "TEMPLATE_DEBUG=true"
 #        - "DEBUG_ERRORS=true"
 #        - "DEBUG_STATIC=true"
@@ -54,7 +54,8 @@ services:
 #        - "EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend"
 #        - "DEFAULT_FROM_EMAIL="
 ## list of hosts seperated by spaces
-        - "ALLOWED_HOSTS=localhost:8000"
+## see https://docs.djangoproject.com/en/2.1/ref/settings/#allowed-hosts
+        - "ALLOWED_HOSTS=*"
 ## additional options as defined in the README
 #        - "HELP_EMAIL="
 #        - "GOOGLE_ANALYTICS_ID="

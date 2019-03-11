@@ -147,7 +147,7 @@ docker build -t badgr .
 Debug image with sh:
 
 ```shell
-docker build -t badgr . && docker run -i --rm --entrypoint /bin/sh badgr
+docker run -i --rm --entrypoint /bin/sh badgr
 ```
   
 ## Docker-Compose
@@ -157,6 +157,15 @@ Run the containers.
 ```shell
 docker network create code_backend
 docker network create code_frontend
-_docker-compose create && docker-compose start
+docker-compose create && docker-compose up
 ```
 
+It will take some time for the migrations to run though and the frontend to
+build.
+Once the website http://localhost:8000/staff appears, you can run the following
+command to create an admin account for you. You may need to replace
+`code_badgr_1` with the container name of the badgr service.
+
+```shell
+docker exec -it code_badgr_1 ./manage.py createsuperuser
+```
